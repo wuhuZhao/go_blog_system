@@ -1,15 +1,15 @@
 # go_blog_system
 
 ### admin
-####restApi:
-    1. login
-    2. add_user
-    3. remove_user
-    2. add_blog
-    3. update_blog
-    4. remove_blog
-    5. get_blog
-####struct:
+###restApi:
+  1. login
+  2. add_user
+  3. remove_user
+  4. add_blog
+  5. update_blog
+  6. remove_blog
+  7. get_blog
+###struct:
 ```js
 user = {
     username: '',
