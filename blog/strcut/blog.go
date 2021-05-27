@@ -1,5 +1,10 @@
 package blog_strcut
 
+import (
+	"database/sql"
+	"fmt"
+)
+
 type blog interface {
 	setBlogId(id int32)
 	setTitle(title string)
@@ -9,7 +14,12 @@ type blog interface {
 	setContent(content string)
 	setAuthor(author string)
 }
-
+type blogOperation interface {
+	Add(db *sql.DB) (res interface{}, err error)
+	Remove(db *sql.DB, id int32) (res interface{}, err error)
+	Update(db *sql.DB) (res interface{}, err error)
+	Get(db *sql.DB, id int32) (res interface{}, err error)
+}
 type Blog struct {
 	blogId     int32  `json:"blog_id"`
 	title      string `json:"title"`
@@ -48,20 +58,58 @@ func (b *Blog) setAuthor(author string) {
 	b.author = author
 }
 
-func (b *Blog) Add() {
-	panic("implement me")
+func (b *Blog) Add(db *sql.DB) (res interface{}, err error) {
+	sqlStr := "INSERT INTO blog(title,topicGroup,createTime,updateTime,content,author) VALUES(?,?,?,?,?,?)"
+	result, err := db.Exec(sqlStr, b.title, b.topicGroup, b.createTime, b.updateTime, b.content, b.author)
+	if err != nil {
+		fmt.Printf("insert faile,err:%v\n", err)
+		return nil, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		fmt.Printf("get insert failed,err:%v\n", err)
+	}
+	return id, nil
 }
 
-func (b *Blog) Remove() {
-	panic("implement me")
+func (b *Blog) Remove(db *sql.DB, id int32) (res interface{}, err error) {
+	sqlStr := "DELETE FROM blog WHERE blogId = ?"
+	result, err := db.Exec(sqlStr, id)
+	if err != nil {
+		fmt.Printf("delete data failed,err:%v\n", err)
+		return nil, err
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("get affected failed,err:%v\n", err)
+		return nil, err
+	}
+	return result, nil
 }
 
-func (b *Blog) Delete() {
-	panic("implement me")
+func (b *Blog) Update(db *sql.DB) (res interface{}, err error) {
+	sqlStr := "UPDATE blog SET title=?,topicGroup=?,createTime=?,updateTime=?,content=?,author=? WHERE blogId=?"
+	result, err := db.Exec(sqlStr, b.title, b.topicGroup, b.createTime, b.updateTime, b.content, b.author, b.blogId)
+	if err != nil {
+		fmt.Printf("update data failed,err:%v\n", err)
+		return nil, err
+	}
+	n, err := result.RowsAffected()
+	if err != nil {
+		fmt.Printf("get rowsaffected failed,err:%v\n", err)
+		return nil, err
+	}
+	return n, nil
 }
 
-func (b *Blog) Get() {
-	panic("implement me")
+func (b *Blog) Get(db *sql.DB, id int32) (res interface{}, err error) {
+	sqlStr := "SELECT blogId,title,topicGroup,createTime,updateTime,content,author FROM blog WHERE blogId=?"
+	err = db.QueryRow(sqlStr, id).Scan(b.blogId, b.title, b.topicGroup, b.createTime, b.updateTime, b.content, b.author)
+	if err != nil {
+		fmt.Printf("get data failed,err:%v\n", err)
+		return nil, err
+	}
+	return b, nil
 }
 
 func NewBlog(id int32, title, group, createTime, updateTime, content, author string) *Blog {
