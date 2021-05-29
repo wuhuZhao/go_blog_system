@@ -1,20 +1,19 @@
 package common
 
 import (
-	"database/sql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"hkzhao/go_blog_system/config"
 )
 
-func InitMySQL() (d *sql.DB, err error) {
-	var db *sql.DB
+var Db *gorm.DB
+
+func InitMySQL() (err error) {
 	dsn := config.MYSQLURL
-	db, err = sql.Open("mysql", dsn)
+	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
+	Db = d
+	return nil
 }
