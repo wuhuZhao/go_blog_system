@@ -43,10 +43,75 @@ func BlogAddHandler(ctx *gin.Context) {
 	})
 }
 func BlogRemoveHandler(ctx *gin.Context) {
-
+	id, err1 := strconv.ParseInt(ctx.PostForm("id"), 10, 32)
+	if err1 != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	blog := blog_strcut.Blog{}
+	result := common.Db.Delete(&blog, id)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	if result.RowsAffected == 1 {
+		jsonData, err2 := json.Marshal(blog)
+		if err2 != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"msg": "error",
+			})
+		}
+		ctx.JSON(http.StatusOK, gin.H{
+			"msg":  "success",
+			"data": string(jsonData),
+		})
+	} else {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
 }
 func BlogUpdateHandler(ctx *gin.Context) {
-
+	id, err1 := strconv.ParseInt(ctx.PostForm("id"), 10, 32)
+	if err1 != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	blog := blog_strcut.Blog{}
+	result := common.Db.First(&blog, id)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	title := ctx.PostForm("title")
+	topicGroup := ctx.PostForm("topic_group")
+	content := ctx.PostForm("content")
+	author := ctx.PostForm("author")
+	blog.Title = title
+	blog.TopicGroup = topicGroup
+	blog.Content = content
+	blog.Author = author
+	blog.UpdateTime = time.Now()
+	result = common.Db.Save(&blog)
+	if result.Error != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	jsonData, err2 := json.Marshal(blog)
+	if err2 != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "error",
+		})
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"msg":  "success",
+		"data": string(jsonData),
+	})
 }
 func BlogGetHandler(ctx *gin.Context) {
 	id, err1 := strconv.ParseInt(ctx.Query("id"), 10, 32)
@@ -90,6 +155,6 @@ func BlogGetAllHandler(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"msg":  "success",
-		"data": jsonData,
+		"data": string(jsonData),
 	})
 }

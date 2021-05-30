@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	blog_handler "hkzhao/go_blog_system/blog/handler"
 	"hkzhao/go_blog_system/common"
+	user_handler "hkzhao/go_blog_system/user/handler"
 )
 
 func main() {
@@ -12,11 +13,24 @@ func main() {
 		panic("failed to connect database")
 	}
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.POST("/v1/test", blog_handler.BlogAddHandler)
-	r.Run(":80") // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
+	blogRestApi := r.Group("/blog")
+	{
+		blogRestApi.GET("/getOne", blog_handler.BlogGetHandler)
+		blogRestApi.GET("/getAll", blog_handler.BlogGetAllHandler)
+		blogRestApi.POST("/update", blog_handler.BlogUpdateHandler)
+		blogRestApi.POST("/remove", blog_handler.BlogRemoveHandler)
+		blogRestApi.POST("/add", blog_handler.BlogAddHandler)
+	}
+	topicGroupRestApi := r.Group("/topic")
+	{
+		topicGroupRestApi.GET("/getAll", blog_handler.TopicGroupGetAllHandler)
+		topicGroupRestApi.POST("/update", blog_handler.TopicGroupUpdateHandler)
+		topicGroupRestApi.POST("/add", blog_handler.TopicGroupAddHandler)
+		topicGroupRestApi.POST("/remove", blog_handler.TopicGroupRemoveHandler)
+	}
+	userRestApi := r.Group("/user")
+	{
+		userRestApi.POST("/login", user_handler.LoginHandler)
+	}
+	r.Run(":80")
 }
