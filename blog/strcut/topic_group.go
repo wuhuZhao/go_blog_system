@@ -1,6 +1,6 @@
 package blog_strcut
 
 type TopicGroup struct {
-	ID    uint `gorm:"autoincrement"`
-	TOPIC string `gorm:"type:varchar(100);not null"`
+	ID    uint   `json:"id" gorm:"autoincrement"`
+	TOPIC string `json:"topic" gorm:"type:varchar(100);not null"`
 }

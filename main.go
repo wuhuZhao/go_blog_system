@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	blog_handler "hkzhao/go_blog_system/blog/handler"
-	blog_strcut "hkzhao/go_blog_system/blog/strcut"
 	"hkzhao/go_blog_system/common"
 	user_handler "hkzhao/go_blog_system/user/handler"
 )
@@ -13,8 +12,6 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
-	common.Db.AutoMigrate(&blog_strcut.Blog{})
-	common.Db.AutoMigrate(&blog_strcut.TopicGroup{})
 	r := gin.Default()
 	blogRestApi := r.Group("/blog")
 	{

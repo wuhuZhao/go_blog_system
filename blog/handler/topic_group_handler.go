@@ -14,7 +14,7 @@ func TopicGroupAddHandler(c *gin.Context) {
 	topicGroup := blog_strcut.TopicGroup{
 		TOPIC: topic,
 	}
-	result := common.Db.Create(&topic)
+	result := common.Db.Select("topic").Create(&topicGroup)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "error",
@@ -40,9 +40,9 @@ func TopicGroupRemoveHandler(c *gin.Context) {
 		})
 	}
 	topicGroup := blog_strcut.TopicGroup{}
-	result := common.Db.Delete(&topicGroup, id)
+	result := common.Db.First(&topicGroup, id).Delete(&topicGroup, id)
 	go func(tg *blog_strcut.TopicGroup) {
-		common.Db.Where("topic_group=?", tg.TOPIC).Delete(blog_strcut.TopicGroup{})
+		common.Db.Where("topic=?", tg.TOPIC).Delete(blog_strcut.TopicGroup{})
 	}(&topicGroup)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -83,7 +83,7 @@ func TopicGroupUpdateHandler(c *gin.Context) {
 		})
 	}
 	go func(tg *blog_strcut.TopicGroup, newVal string) {
-		common.Db.Model(blog_strcut.Blog{}).Where("topic_group=?", tg.TOPIC).Updates(blog_strcut.Blog{TopicGroup: newVal})
+		common.Db.Model(blog_strcut.Blog{}).Where("topic=?", tg.TOPIC).Updates(blog_strcut.Blog{TopicGroup: newVal})
 	}(&topicGroup, newTopic)
 	topicGroup.TOPIC = newTopic
 	result = common.Db.Save(&topicGroup)

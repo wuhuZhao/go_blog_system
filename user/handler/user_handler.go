@@ -16,7 +16,7 @@ func LoginHandler(c *gin.Context) {
 		})
 	}
 	user := user2.Admin{}
-	result := common.Db.First(&user, username)
+	result := common.Db.Where("username=?", username).First(&user)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "error",
