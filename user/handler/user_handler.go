@@ -23,10 +23,17 @@ func LoginHandler(c *gin.Context) {
 		})
 	}
 	if strings.Compare(user.Password, password) == 0 {
-		c.JSON(http.StatusOK, gin.H{
-			"msg":  "success",
-			"data": username,
-		})
+		if token, err := ToJwt(username); err == nil {
+			c.JSON(http.StatusOK, gin.H{
+				"msg":  "success",
+				"data": token,
+			})
+		} else {
+			c.JSON(http.StatusNotFound, gin.H{
+				"msg":  "fail",
+				"data": username,
+			})
+		}
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{
 			"msg":  "fail",
