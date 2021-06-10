@@ -14,6 +14,7 @@ func LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "error",
 		})
+		return
 	}
 	user := user2.Admin{}
 	result := common.Db.Where("username=?", username).First(&user)
@@ -21,6 +22,7 @@ func LoginHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "error",
 		})
+		return
 	}
 	if strings.Compare(user.Password, password) == 0 {
 		if token, err := ToJwt(username); err == nil {
